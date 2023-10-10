@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { getSignedUrl, uploadFileToSignedUrl } from "./index.js";
 import Image from "./Image.jsx";
 
 export default function PhotosUploader({ addedPhotos, onChange }) {
@@ -15,22 +16,43 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
     setPhotoLink("");
   }
   function uploadPhoto(ev) {
-    const files = ev.target.files;
-    const data = new FormData();
-    for (let i = 0; i < files.length; i++) {
-      data.append("photos", files[i]);
-    }
-    axios
-      .post("/upload", data, {
-        headers: { "Content-type": "multipart/form-data" },
-      })
-      .then((response) => {
-        const { data: filenames } = response;
-        onChange((prev) => {
-          return [...prev, ...filenames];
-        });
-      });
+    const [fileLink, setFileLink] = useState("");
+    const file = ev.target.files[0];
+
+    const content_type = file.type;
+    const key = `test/image/${file.name}`;
+    getSignedUrl({ key, content_type }).then((response) => {
+      console.log(response);
+
+      uploadFileToSignedUrl(
+        response.data.signedUrl,
+        file,
+        content_type,
+        null,
+        () => {
+          setFileLink(response.data.fileLink);
+        }
+      );
+    });
+    console.log(fileLink);
   }
+  // function uploadPhoto(ev) {
+  //   const files = ev.target.files;
+  //   const data = new FormData();
+  //   for (let i = 0; i < files.length; i++) {
+  //     data.append("photos", files[i]);
+  //   }
+  //   axios
+  //     .post("/upload", data, {
+  //       headers: { "Content-type": "multipart/form-data" },
+  //     })
+  //     .then((response) => {
+  //       const { data: filenames } = response;
+  //       onChange((prev) => {
+  //         return [...prev, ...filenames];
+  //       });
+  //     });
+  // }
   function removePhoto(ev, filename) {
     ev.preventDefault();
     onChange([...addedPhotos.filter((photo) => photo !== filename)]);
