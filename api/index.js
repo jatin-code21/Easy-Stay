@@ -42,6 +42,7 @@ const s3 = new S3Client({
 
 const BUCKET_NAME = process.env.S3_BUCKET_NAME;
 
+// filelink and signed url is returned from this function
 async function createPresignedPost({ key, contentType }) {
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
@@ -62,11 +63,13 @@ app.post("/upload", async (req, res) => {
   try {
     let { key, content_type } = req.body;
     key = "public/" + key;
-    const data = await createPresignedPost({ key, contentType: content_type });
+    const {signedUrl, fileLink} = await createPresignedPost({ key, contentType: content_type });
 
     return res.send({
-      status: "success",
-      data,
+      data:{
+        signedUrl,
+        fileLink
+      }
     });
   } catch (err) {
     console.error(err);
@@ -324,4 +327,4 @@ app.get("/bookings", async (req, res) => {
 });
 
 mongoose.set("strictQuery", true);
-app.listen(4000);
+app.listen(4000, () => {console.log(`Server is running on port 4000`)});

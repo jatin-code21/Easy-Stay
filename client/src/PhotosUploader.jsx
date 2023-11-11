@@ -5,6 +5,8 @@ import Image from "./Image.jsx";
 
 export default function PhotosUploader({ addedPhotos, onChange }) {
   const [photoLink, setPhotoLink] = useState("");
+  const [fileLink, setFileLink] = useState("");
+  // On clicking the button this function is called
   async function addPhotoByLink(ev) {
     ev.preventDefault();
     const { data: filename } = await axios.post("/upload-by-link", {
@@ -15,15 +17,15 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
     });
     setPhotoLink("");
   }
-  function uploadPhoto(ev) {
-    const [fileLink, setFileLink] = useState("");
+  // this is for the localstorage photo upload
+  const uploadPhoto = (ev) => {
+    console.log(ev.target.files[0]);
     const file = ev.target.files[0];
 
     const content_type = file.type;
-    const key = `test/image/${file.name}`;
+    const key = `uploads/${file.name}`;
     getSignedUrl({ key, content_type }).then((response) => {
       console.log(response);
-
       uploadFileToSignedUrl(
         response.data.signedUrl,
         file,
@@ -34,9 +36,9 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
         }
       );
     });
-    console.log(fileLink);
+    // console.log(fileLink);
   }
-  // function uploadPhoto(ev) {
+  // const uploadPhoto = (ev) => {
   //   const files = ev.target.files;
   //   const data = new FormData();
   //   for (let i = 0; i < files.length; i++) {
@@ -142,6 +144,8 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
               </button>
             </div>
           ))}
+        {/* this is the button to upload the photo via localstorage */}
+        <img src={fileLink} alt="" />
         <label className="h-32 cursor-pointer flex items-center gap-1 justify-center border bg-transparent rounded-2xl p-2 text-2xl text-gray-600">
           <input
             type="file"

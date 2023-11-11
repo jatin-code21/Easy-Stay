@@ -3,7 +3,7 @@ import axios from "axios";
 // require("dotenv").config();
 
 const apiClient = axios.create({
-  baseURL: `http://localhost:5173`,
+  baseURL: `http://localhost:4000`, // Server url goes here
 });
 
 export async function getSignedUrl({ key, content_type }) {
