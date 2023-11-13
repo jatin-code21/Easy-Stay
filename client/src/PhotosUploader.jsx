@@ -3,6 +3,7 @@ import { useState } from "react";
 import { getSignedUrl, uploadFileToSignedUrl } from "./index.js";
 import Image from "./Image.jsx";
 
+// added photos is the array of photos link (aws link) that we have added 
 export default function PhotosUploader({ addedPhotos, onChange }) {
   const [photoLink, setPhotoLink] = useState("");
   const [fileLink, setFileLink] = useState("");
@@ -18,26 +19,24 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
     setPhotoLink("");
   }
   // this is for the localstorage photo upload
-  const uploadPhoto = (ev) => {
-    console.log(ev.target.files[0]);
-    const file = ev.target.files[0];
-
-    const content_type = file.type;
-    const key = `uploads/${file.name}`;
-    getSignedUrl({ key, content_type }).then((response) => {
-      console.log(response);
-      uploadFileToSignedUrl(
-        response.data.signedUrl,
-        file,
-        content_type,
-        null,
-        () => {
-          setFileLink(response.data.fileLink);
-        }
-      );
-    });
-    // console.log(fileLink);
-  }
+  //to store and upload images on db we have to first put images in addedPhotos array coming as props
+  // const uploadPhoto = (ev) => {
+  //   const file = ev.target.files[0];
+  //   const content_type = file.type;
+  //   const key = `uploads/${file.name}`;
+  //   getSignedUrl({ key, content_type }).then((response) => {
+  //     console.log(response);
+  //     uploadFileToSignedUrl(
+  //       response.data.signedUrl,
+  //       file,
+  //       content_type,
+  //       null,
+  //       () => {
+  //         setFileLink(response.data.fileLink);
+  //       }
+  //     );
+  //   });
+  // }
   // const uploadPhoto = (ev) => {
   //   const files = ev.target.files;
   //   const data = new FormData();
@@ -55,6 +54,27 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
   //       });
   //     });
   // }
+  const uploadPhoto = (ev) => {
+    const files = ev.target.files;
+  
+    for (const file of files) {
+      const content_type = file.type;
+      const key = `uploads/${file.name}`;
+  
+      getSignedUrl({ key, content_type }).then((response) => {
+        uploadFileToSignedUrl(
+          response.data.signedUrl,
+          file,
+          content_type,
+          null,
+          () => {
+            // Add the uploaded file link to the `addedPhotos` array.
+            onChange([...addedPhotos, response.data.fileLink]);
+          }
+        );
+      });
+    }
+  };
   function removePhoto(ev, filename) {
     ev.preventDefault();
     onChange([...addedPhotos.filter((photo) => photo !== filename)]);
@@ -83,6 +103,7 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
         {addedPhotos.length > 0 &&
           addedPhotos.map((link) => (
             <div className="h-32 flex relative" key={link}>
+              {console.log(link)}
               <Image
                 className="rounded-2xl w-full object-cover"
                 src={link}
@@ -145,7 +166,7 @@ export default function PhotosUploader({ addedPhotos, onChange }) {
             </div>
           ))}
         {/* this is the button to upload the photo via localstorage */}
-        <img src={fileLink} alt="" />
+        {/* <img src={fileLink} alt="" /> */}
         <label className="h-32 cursor-pointer flex items-center gap-1 justify-center border bg-transparent rounded-2xl p-2 text-2xl text-gray-600">
           <input
             type="file"
