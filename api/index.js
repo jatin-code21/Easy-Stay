@@ -30,7 +30,7 @@ app.use("/uploads", express.static(__dirname + "/uploads"));
 app.use(
   cors({
     credentials: true,
-    origin: ["https://easy-stay-frontend.vercel.app", "https://easy-stay-frontend.vercel.app/login" ,"https://easy-stay-frontend.vercel.app/register", "https://easy-stay-frontend.vercel.app/account","https://easy-stay-frontend.vercel.app/places","https://easy-stay-frontend.vercel.app/account/places", "https://easy-stay-frontend.vercel.app/account/places/new","https://easy-stay-frontend.vercel.app/account/places/:id","https://easy-stay-frontend.vercel.app/place/:id","https://easy-stay-frontend.vercel.app/account/bookings","https://easy-stay-frontend.vercel.app/account/bookings/:id","http://localhost:5173"],
+    origin: "https://easy-stay-frontend.vercel.app"
   })
 );
 
