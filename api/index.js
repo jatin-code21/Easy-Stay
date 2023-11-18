@@ -27,7 +27,7 @@ const bucket = process.env.S3_BUCKET_NAME;
 app.use(
   cors({
     credentials: true,
-    origin: "*",
+    origin: "https://easy-stay-frontend.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"]
   })
 );
