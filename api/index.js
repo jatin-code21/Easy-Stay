@@ -24,9 +24,6 @@ const bcryptSalt = bcrypt.genSaltSync(10);
 const jwtSecret = "djfflasjgasngbgskoih12";
 const bucket = process.env.S3_BUCKET_NAME;
 
-app.use(express.json());
-app.use(cookieParser());
-app.use("/uploads", express.static(__dirname + "/uploads"));
 app.use(
   cors({
     credentials: true,
@@ -34,6 +31,9 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"]
   })
 );
+app.use(express.json());
+app.use(cookieParser());
+app.use("/uploads", express.static(__dirname + "/uploads"));
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
