@@ -3,6 +3,8 @@ import {differenceInCalendarDays} from "date-fns";
 import axios from "axios";
 import {Navigate} from "react-router-dom";
 import {UserContext} from "./UserContext.jsx";
+// import { config } from 'dotenv';
+// config();
 
 export default function BookingWidget({place}) {
   const [checkIn,setCheckIn] = useState('');
@@ -23,6 +25,42 @@ export default function BookingWidget({place}) {
   if (checkIn && checkOut) {
     numberOfNights = differenceInCalendarDays(new Date(checkOut), new Date(checkIn));
   }
+
+  const initPayment = (data) => {
+		const options = {
+			key: "rzp_test_JFhLRjOtAC5DZ7",
+			amount: data.amount,
+			currency: data.currency,
+			name: place.title,
+			description: "This is an secured transaction, you can safely proceed further",
+			image: place.photos[0],
+			order_id: data.id,
+			handler: async (response) => {
+				try {
+					const { data } = await axios.post('/verify', response);
+					console.log(data);
+          await bookThisPlace();
+				} catch (error) {
+					console.log(error);
+				}
+			},
+			theme: {
+				color: "#3399cc",
+			},
+		};
+		const rzp1 = new window.Razorpay(options);
+		rzp1.open();
+	};
+
+  const handlePayment = async () => {
+		try {
+			const { data } = await axios.post('/orders', { amount: numberOfNights * place.price });
+			console.log(data);
+			initPayment(data.data);
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
   async function bookThisPlace() {
     const response = await axios.post('/bookings', {
@@ -76,7 +114,7 @@ export default function BookingWidget({place}) {
           </div>
         )}
       </div>
-      <button onClick={bookThisPlace} className="primary mt-4">
+      <button onClick={handlePayment} className="primary mt-4">
         Book this place
         {numberOfNights > 0 && (
           <span> ${numberOfNights * place.price}</span>

@@ -6,6 +6,8 @@ const jwt = require("jsonwebtoken");
 const User = require("./models/User.js");
 const Place = require("./models/Place.js");
 const Booking = require("./models/Booking.js");
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
 
 const cookieParser = require("cookie-parser");
 const imageDownloader = require("image-downloader");
@@ -297,6 +299,53 @@ app.get("/places", async (req, res) => {
   res.json(await Place.find());
 });
 
+app.post("/orders", async (req, res) => {
+	try {
+		const instance = new Razorpay({
+			key_id: process.env.RAZORPAY_ID_KEY,
+			key_secret: process.env.RAZORPAY_SECRET_KEY,
+		});
+
+		const options = {
+			amount: req.body.amount * 100,
+			currency: "INR",
+			receipt: crypto.randomBytes(10).toString("hex"),
+		};
+
+		instance.orders.create(options, (error, order) => {
+			if (error) {
+				console.log(error);
+				return res.status(500).json({ message: "Something Went Wrong!" });
+			}
+			res.status(200).json({ data: order }); 
+		});
+	} catch (error) { 
+		res.status(500).json({ message: "Internal Server Error!" });
+		console.log(error);
+	}
+});
+
+app.post("/verify", async (req, res) => {
+	try {
+		const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+			req.body;
+		const sign = razorpay_order_id + "|" + razorpay_payment_id;
+		const expectedSign = crypto
+			.createHmac("sha256", "gnFE5y8gf6k8jw4ytTPGPmLK")
+			.update(sign.toString())
+			.digest("hex");
+
+		if (razorpay_signature === expectedSign) {
+			return res.status(200).json({ message: "Payment verified successfully" });
+		} else {
+			return res.status(400).json({ message: "Invalid signature sent!" });
+		}
+	} catch (error) {
+		res.status(500).json({ message: "Internal Server Error!" });
+		console.log(error);
+	}
+}); 
+ 
 app.post("/bookings", async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   const userData = await getUserDataFromReq(req);
@@ -311,7 +360,7 @@ app.post("/bookings", async (req, res) => {
     phone,
     price,
     user: userData.id,
-  })
+  }) 
     .then((doc) => {
       res.json(doc);
     })
@@ -328,3 +377,4 @@ app.get("/bookings", async (req, res) => {
 
 mongoose.set("strictQuery", true);
 app.listen(4000, () => {console.log(`Server is running on port 4000`)});
+ 
