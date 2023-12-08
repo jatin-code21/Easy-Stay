@@ -30,7 +30,6 @@ app.use(
     origin: "https://easy-stay.onrender.com",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true
   })
 );
 app.use(express.json());
