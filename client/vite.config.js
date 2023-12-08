@@ -8,6 +8,9 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 1600,
   },
+  server:{
+    '/api' : 'https://easy-stay-backend.onrender.com',
+  }
 });
 
 // module.exports = {
