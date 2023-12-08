@@ -14,7 +14,7 @@ import BookingsPage from "./pages/BookingsPage";
 import BookingPage from "./pages/BookingPage";
 
 // axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
-axios.defaults.baseURL = "https://easy-stay-api.vercel.app";
+axios.defaults.baseURL = "https://easy-stay-backend.onrender.com";
 axios.defaults.withCredentials = true;
 
 function App() {
