@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "vite build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.279.0",
